@@ -62,12 +62,12 @@ class MagentoStyleTest extends TestCase
         );
         // @codingStandardsIgnoreStart
         $expected = PHP_EOL . PHP_EOL . PHP_EOL .
-            '<testBlockStyle>testBlockPrefix[testBlockType] test first message                                                                       '
-            . PHP_EOL . '<testBlockStyle>testBlockPrefix                                                                                                         '
-            . PHP_EOL . '<testBlockStyle>testBlockPrefix                test second message                                                                      '
+            '\<testBlockStyle\>testBlockPrefix\[testBlockType\] test first message\s+'
+            . PHP_EOL . '\<testBlockStyle\>testBlockPrefix\s+'
+            . PHP_EOL . '\<testBlockStyle\>testBlockPrefix \s+ test second message\s+'
             . PHP_EOL . PHP_EOL;
         // @codingStandardsIgnoreEnd
-        $this->assertEquals($expected, $this->testOutput->output, 'Block does not match output');
+        $this->assertRegExp('/' . $expected . '/', $this->testOutput->output, 'Block does not match output');
     }
 
     /**
