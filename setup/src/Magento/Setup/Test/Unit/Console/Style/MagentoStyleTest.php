@@ -132,11 +132,11 @@ class MagentoStyleTest extends TestCase
         $this->magentoStyle->comment('test comment');
         // @codingStandardsIgnoreStart
         $expected = PHP_EOL . PHP_EOL . PHP_EOL .
-            ' test comment                                                                                                           '
+            '\s+test comment\s+'
             . PHP_EOL . PHP_EOL;
         // @codingStandardsIgnoreEnd
 
-        $this->assertEquals($expected, $this->testOutput->output, 'Comment does not match output');
+        $this->assertRegExp('/' . $expected . '/', $this->testOutput->output, 'Comment does not match output');
     }
 
     /**
