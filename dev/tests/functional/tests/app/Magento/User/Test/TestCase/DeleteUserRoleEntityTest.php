@@ -117,6 +117,8 @@ class DeleteUserRoleEntityTest extends Injectable
             $this->adminAuthLogin->open();
             $this->adminAuthLogin->getLoginBlock()->fill($adminUser);
             $this->adminAuthLogin->getLoginBlock()->submit();
+            $this->adminAuthLogin->waitForHeaderBlock();
+            $this->adminAuthLogin->dismissAdminUsageNotification();
         }
         $this->userRoleIndex->open();
         $this->userRoleIndex->getRoleGrid()->searchAndOpen($filter);
@@ -129,7 +131,7 @@ class DeleteUserRoleEntityTest extends Injectable
      *
      * return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->dashboard->getAdminPanelHeader()->logOut();
     }

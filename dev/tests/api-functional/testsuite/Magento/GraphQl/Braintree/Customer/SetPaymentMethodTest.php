@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Magento\GraphQl\Braintree\Customer;
 
 use Magento\Braintree\Gateway\Command\GetPaymentNonceCommand;
+use Magento\Framework\Exception\AuthenticationException;
 use Magento\Framework\Registry;
 use Magento\GraphQl\Quote\GetMaskedQuoteIdByReservedOrderId;
 use Magento\Integration\Api\CustomerTokenServiceInterface;
@@ -66,7 +67,7 @@ class SetPaymentMethodTest extends GraphQlAbstract
     /**
      * @inheritdoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $objectManager = Bootstrap::getObjectManager();
         $this->getMaskedQuoteIdByReservedOrderId = $objectManager->get(GetMaskedQuoteIdByReservedOrderId::class);
@@ -213,11 +214,12 @@ class SetPaymentMethodTest extends GraphQlAbstract
      * @magentoApiDataFixture Magento/GraphQl/Quote/_files/set_new_billing_address.php
      * @magentoApiDataFixture Magento/GraphQl/Quote/_files/set_flatrate_shipping_method.php
      * @dataProvider dataProviderTestSetPaymentMethodInvalidInput
-     * @expectedException \Exception
      * @param string $methodCode
      */
     public function testSetPaymentMethodInvalidInput(string $methodCode)
     {
+        $this->expectException(\Exception::class);
+
         $reservedOrderId = 'test_quote';
         $maskedQuoteId = $this->getMaskedQuoteIdByReservedOrderId->execute($reservedOrderId);
 
@@ -245,11 +247,12 @@ class SetPaymentMethodTest extends GraphQlAbstract
      * @magentoApiDataFixture Magento/GraphQl/Quote/_files/set_new_billing_address.php
      * @magentoApiDataFixture Magento/GraphQl/Quote/_files/set_flatrate_shipping_method.php
      * @dataProvider dataProviderTestSetPaymentMethodInvalidInput
-     * @expectedException \Exception
      * @param string $methodCode
      */
     public function testSetPaymentMethodInvalidMethodInput(string $methodCode)
     {
+        $this->expectException(\Exception::class);
+
         $reservedOrderId = 'test_quote';
         $maskedQuoteId = $this->getMaskedQuoteIdByReservedOrderId->execute($reservedOrderId);
 
@@ -258,6 +261,14 @@ class SetPaymentMethodTest extends GraphQlAbstract
             $methodCode
         );
         $this->expectExceptionMessage("for \"$methodCode\" is missing.");
+        $expectedExceptionMessages = [
+            'braintree' =>
+                'Field BraintreeInput.is_active_payment_token_enabler of required type Boolean! was not provided.',
+            'braintree_cc_vault' =>
+                'Field BraintreeCcVaultInput.public_hash of required type String! was not provided.'
+        ];
+
+        $this->expectExceptionMessage($expectedExceptionMessages[$methodCode]);
         $this->graphQlMutation($setPaymentQuery, [], '', $this->getHeaderMap());
     }
 
@@ -273,8 +284,8 @@ class SetPaymentMethodTest extends GraphQlAbstract
     {
         self::assertArrayHasKey('placeOrder', $response);
         self::assertArrayHasKey('order', $response['placeOrder']);
-        self::assertArrayHasKey('order_id', $response['placeOrder']['order']);
-        self::assertEquals($reservedOrderId, $response['placeOrder']['order']['order_id']);
+        self::assertArrayHasKey('order_number', $response['placeOrder']['order']);
+        self::assertEquals($reservedOrderId, $response['placeOrder']['order']['order_number']);
     }
 
     private function assertSetPaymentMethodResponse(array $response, string $methodCode): void
@@ -407,7 +418,7 @@ QUERY;
 mutation {
   placeOrder(input: {cart_id: "{$maskedQuoteId}"}) {
     order {
-      order_id
+      order_number
     }
   }
 }
@@ -437,7 +448,7 @@ QUERY;
      * @param string $username
      * @param string $password
      * @return array
-     * @throws \Magento\Framework\Exception\AuthenticationException
+     * @throws AuthenticationException
      */
     private function getHeaderMap(string $username = 'customer@example.com', string $password = 'password'): array
     {
@@ -449,7 +460,7 @@ QUERY;
     /**
      * @inheritdoc
      */
-    public function tearDown()
+    protected function tearDown(): void
     {
         $this->registry->unregister('isSecureArea');
         $this->registry->register('isSecureArea', true);

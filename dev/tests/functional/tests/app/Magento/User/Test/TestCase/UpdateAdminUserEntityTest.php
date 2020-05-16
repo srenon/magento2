@@ -147,6 +147,8 @@ class UpdateAdminUserEntityTest extends Injectable
             $this->adminAuth->open();
             $this->adminAuth->getLoginBlock()->fill($initialUser);
             $this->adminAuth->getLoginBlock()->submit();
+            $this->adminAuth->waitForHeaderBlock();
+            $this->adminAuth->dismissAdminUsageNotification();
         }
         $this->userIndex->open();
         $this->userIndex->getUserGrid()->searchAndOpen($filter);
@@ -182,7 +184,7 @@ class UpdateAdminUserEntityTest extends Injectable
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         if ($this->dashboard->getAdminPanelHeader()->isVisible()) {
             $this->dashboard->getAdminPanelHeader()->logOut();

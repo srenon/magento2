@@ -117,6 +117,8 @@ class DeleteAdminUserEntityTest extends Injectable
             $this->adminAuthLogin->open();
             $this->adminAuthLogin->getLoginBlock()->fill($user);
             $this->adminAuthLogin->getLoginBlock()->submit();
+            $this->adminAuthLogin->waitForHeaderBlock();
+            $this->adminAuthLogin->dismissAdminUsageNotification();
         }
         $this->userIndex->open();
         $this->userIndex->getUserGrid()->searchAndOpen($filter);
@@ -130,7 +132,7 @@ class DeleteAdminUserEntityTest extends Injectable
      *
      * return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->dashboard->getAdminPanelHeader()->logOut();
     }

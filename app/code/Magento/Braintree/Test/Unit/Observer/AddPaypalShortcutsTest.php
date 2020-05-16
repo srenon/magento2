@@ -3,38 +3,48 @@
  * Copyright © Magento, Inc. All rights reserved.
  * See COPYING.txt for license details.
  */
+declare(strict_types=1);
+
 namespace Magento\Braintree\Test\Unit\Observer;
 
 use Magento\Braintree\Block\Paypal\Button;
+use Magento\Braintree\Observer\AddPaypalShortcuts;
 use Magento\Catalog\Block\ShortcutButtons;
 use Magento\Framework\Event;
 use Magento\Framework\Event\Observer;
-use Magento\Braintree\Observer\AddPaypalShortcuts;
 use Magento\Framework\View\LayoutInterface;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
- * Class AddPaypalShortcutsTest
- *
  * @see \Magento\Braintree\Observer\AddPaypalShortcuts
  */
-class AddPaypalShortcutsTest extends \PHPUnit\Framework\TestCase
+class AddPaypalShortcutsTest extends TestCase
 {
+    /**
+     * Tests PayPal shortcuts observer.
+     */
     public function testExecute()
     {
-        $addPaypalShortcuts = new AddPaypalShortcuts();
+        $addPaypalShortcuts = new AddPaypalShortcuts(
+            [
+                'mini_cart' => 'Minicart-block',
+                'shopping_cart' => 'Shoppingcart-block'
+            ]
+        );
 
-        /** @var Observer|\PHPUnit_Framework_MockObject_MockObject $observerMock */
+        /** @var Observer|MockObject $observerMock */
         $observerMock = $this->getMockBuilder(Observer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        /** @var Event|\PHPUnit_Framework_MockObject_MockObject $eventMock */
+        /** @var Event|MockObject $eventMock */
         $eventMock = $this->getMockBuilder(Event::class)
             ->setMethods(['getContainer'])
             ->disableOriginalConstructor()
             ->getMock();
 
-        /** @var ShortcutButtons|\PHPUnit_Framework_MockObject_MockObject $shortcutButtonsMock */
+        /** @var ShortcutButtons|MockObject $shortcutButtonsMock */
         $shortcutButtonsMock = $this->getMockBuilder(ShortcutButtons::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -60,7 +70,7 @@ class AddPaypalShortcutsTest extends \PHPUnit\Framework\TestCase
 
         $layoutMock->expects(self::once())
             ->method('createBlock')
-            ->with(AddPaypalShortcuts::PAYPAL_SHORTCUT_BLOCK)
+            ->with('Minicart-block')
             ->willReturn($blockMock);
 
         $shortcutButtonsMock->expects(self::once())

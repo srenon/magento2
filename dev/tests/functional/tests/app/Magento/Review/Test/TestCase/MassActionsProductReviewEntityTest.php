@@ -102,7 +102,7 @@ class MassActionsProductReviewEntityTest extends Injectable
         $this->reviewIndex->getReviewGrid()->massaction(
             [['title' => $this->review->getTitle()]],
             [$gridActions => $gridStatus],
-            ($gridActions == 'Delete' ? true : false)
+            ($gridActions == 'Delete')
         );
     }
 
@@ -111,7 +111,7 @@ class MassActionsProductReviewEntityTest extends Injectable
      *
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->ratingIndex->open();
         if ($this->review instanceof Review) {
